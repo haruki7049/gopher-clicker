@@ -9,6 +9,7 @@ import (
 	// Externals
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"golang.org/x/image/font/gofont/goregular"
 
@@ -26,8 +27,8 @@ func gopherColor() color.RGBA {
 
 type gopher struct {
 	image  *ebiten.Image
-	x      int
-	y      int
+	x      float64
+	y      float64
 	scaleX float64
 	scaleY float64
 }
@@ -70,9 +71,45 @@ func (g *game) Update() error {
 		g.ticks = 0
 	}
 
+	if g.isGopherClicked() {
+		g.gopher.x += 100.0
+		g.gopher.y += 100.0
+	}
+
 	return nil
 }
 
+func (g *game) isGopherClicked() bool {
+	// Check if the left mouse button is just pressed
+	if !inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		return false
+	}
+
+	cx, cy := ebiten.CursorPosition()
+
+	// Adjust cursor position to relative coordinates inside the image
+	relX := float64(cx) - g.gopher.x
+	relY := float64(cy) - g.gopher.y
+
+	bounds := g.gopher.image.Bounds()
+	w := float64(bounds.Dx()) * g.gopher.scaleX
+	h := float64(bounds.Dy()) * g.gopher.scaleY
+
+	// Check if the cursor is within the bounding box
+	if relX < 0 || relY < 0 || relX >= w || relY >= h {
+		return false
+	}
+
+	// Convert relative coordinates to local image coordinates
+	localX := int(relX / g.gopher.scaleX)
+	localY := int(relY / g.gopher.scaleY)
+
+	// Get the color of the pixel
+	_, _, _, a := g.gopher.image.At(localX, localY).RGBA()
+
+	// Check if the alpha value is not zero (not transparent)
+	return a > 0
+}
 func (g *game) Draw(screen *ebiten.Image) {
 	// Fill the screen with Cyan Blue (Gopher's color!!)
 	screen.Fill(gopherColor())
@@ -81,6 +118,7 @@ func (g *game) Draw(screen *ebiten.Image) {
 	{
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Scale(g.gopher.scaleX, g.gopher.scaleY)
+		op.GeoM.Translate(g.gopher.x, g.gopher.y)
 		screen.DrawImage(g.gopher.image, op)
 	}
 
