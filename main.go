@@ -24,7 +24,7 @@ func gopherColor() color.RGBA {
 	return color.RGBA{R: 0x00, G: 0xad, B: 0xd8, A: 0xff}
 }
 
-type Gopher struct {
+type gopher struct {
 	image  *ebiten.Image
 	x      int
 	y      int
@@ -32,15 +32,15 @@ type Gopher struct {
 	scaleY float64
 }
 
-type Game struct {
+type game struct {
 	isTitle  bool
 	ticks    int
-	gopher   Gopher
+	gopher   gopher
 	fontFace *text.GoTextFaceSource
 }
 
-func newGame() (*Game, error) {
-	g := &Game{}
+func newGame() (*game, error) {
+	g := &game{}
 
 	// Load gopher image
 	gopher_img, _, err := ebitenutil.NewImageFromFileSystem(assets.Assets, "images/gopher.png")
@@ -63,7 +63,7 @@ func newGame() (*Game, error) {
 	return g, nil
 }
 
-func (g *Game) Update() error {
+func (g *game) Update() error {
 	// Increment ticks and reset at 120 to prevent overflow
 	g.ticks++
 	if g.ticks >= 120 {
@@ -73,7 +73,7 @@ func (g *Game) Update() error {
 	return nil
 }
 
-func (g *Game) Draw(screen *ebiten.Image) {
+func (g *game) Draw(screen *ebiten.Image) {
 	// Fill the screen with Cyan Blue (Gopher's color!!)
 	screen.Fill(gopherColor())
 
@@ -102,7 +102,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 }
 
-func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
+func (g *game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
 	return GAME_WIDTH, GAME_HEIGHT
 }
 
