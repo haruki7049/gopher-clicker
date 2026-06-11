@@ -2,7 +2,7 @@
 $Env:GOOS = 'js'
 $Env:GOARCH = 'wasm'
 ## 1.1. Create a public dir
-New-Item -Force -ItemType Directory public
+New-Item -Force -ItemType Directory public | Out-Null
 ## 1.2. Build!!
 go build -o public/main.wasm .
 ## 1.3. Clean up environment variables
