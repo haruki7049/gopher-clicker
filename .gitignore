@@ -38,3 +38,6 @@ go.work.sum
 
 # wasm_exec.js for executing Wasm
 wasm_exec.js
+
+# The public dir
+/public/
