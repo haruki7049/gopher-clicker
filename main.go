@@ -91,12 +91,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			Size:   24,
 		}
 
+		_, h := text.Measure(GAME_TITLE, face, face.Size)
+
 		op := &text.DrawOptions{}
-		op.PrimaryAlign = text.AlignCenter
+		op.LayoutOptions = text.LayoutOptions{LineSpacing: h, PrimaryAlign: text.AlignCenter, SecondaryAlign: text.AlignCenter}
 		op.GeoM.Translate(GAME_WIDTH/2, GAME_HEIGHT/3*2)
 
 		// Draw
-		text.Draw(screen, GAME_TITLE, face, op)
+		text.Draw(screen, GAME_TITLE+"\nClick and Start!!", face, op)
 	}
 }
 
