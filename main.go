@@ -90,7 +90,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			Source: g.fontFace,
 			Size:   24,
 		}
+
 		op := &text.DrawOptions{}
+		op.PrimaryAlign = text.AlignCenter
 		op.GeoM.Translate(GAME_WIDTH/2, GAME_HEIGHT/3*2)
 
 		// Draw
