@@ -10,15 +10,22 @@ import (
 	"github.com/haruki7049/gopher-clicker/assets"
 )
 
+func gopherColor() color.RGBA {
+	return color.RGBA{R: 0x00, G: 0xad, B: 0xd8, A: 0xff}
+}
+
 type Gopher struct {
-	image *ebiten.Image
-	x     int
-	y     int
+	image  *ebiten.Image
+	x      int
+	y      int
+	scaleX float64
+	scaleY float64
 }
 
 type Game struct {
-	ticks  int
-	gopher Gopher
+	isTitle bool
+	ticks   int
+	gopher  Gopher
 }
 
 func newGame() (*Game, error) {
@@ -30,6 +37,10 @@ func newGame() (*Game, error) {
 		return nil, err
 	}
 	g.gopher.image = gopher_img
+
+	// Set initial gopher scale
+	g.gopher.scaleX = 0.5
+	g.gopher.scaleY = 0.5
 
 	return g, nil
 }
@@ -45,11 +56,12 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	// Fill the screen with the calculated color
-	screen.Fill(color.RGBA{R: 0x00, G: 0xad, B: 0xd8, A: 0xff})
+	// Fill the screen with Cyan Blue (Gopher's color!!)
+	screen.Fill(gopherColor())
 
 	// Draw Gopher image
 	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(g.gopher.scaleX, g.gopher.scaleY)
 	screen.DrawImage(g.gopher.image, op)
 }
 
