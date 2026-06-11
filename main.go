@@ -16,6 +16,7 @@ import (
 	"github.com/haruki7049/gopher-clicker/assets"
 )
 
+const GAME_TITLE = "Gopher Clicker"
 const GAME_HEIGHT = 480
 const GAME_WIDTH = 640
 
@@ -93,7 +94,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		op.GeoM.Translate(GAME_WIDTH/2, GAME_HEIGHT/3*2)
 
 		// Draw
-		text.Draw(screen, "Gopher Clicker", face, op)
+		text.Draw(screen, GAME_TITLE, face, op)
 	}
 }
 
@@ -103,7 +104,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 
 func main() {
 	ebiten.SetWindowSize(GAME_WIDTH, GAME_HEIGHT)
-	ebiten.SetWindowTitle("Hello, World!")
+	ebiten.SetWindowTitle(GAME_TITLE)
 	g, err := newGame()
 	if err != nil {
 		log.Fatal(err)
