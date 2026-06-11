@@ -46,8 +46,8 @@
             pkgs.libglvnd
           ];
 
-          GOLD-BEAST = pkgs.buildGoApplication {
-            name = "GOLD-BEAST";
+          gopher-clicker = pkgs.buildGoApplication {
+            name = "gopher-clicker";
             src = lib.cleanSource ./.;
             modules = ./gomod2nix.toml;
           };
@@ -78,12 +78,12 @@
           };
 
           packages = {
-            inherit GOLD-BEAST;
-            default = GOLD-BEAST;
+            inherit gopher-clicker;
+            default = gopher-clicker;
           };
 
           checks = {
-            inherit GOLD-BEAST;
+            inherit gopher-clicker;
           };
 
           devShells.default = pkgs.mkShell {
