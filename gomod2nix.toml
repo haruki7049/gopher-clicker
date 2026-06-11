@@ -13,6 +13,10 @@ schema = 3
     version = 'v0.9.0'
     hash = 'sha256-jSlhGjhuYf15zHy7shSKR1rQN1sRyH5zXAzWqy+huHY='
 
+  [mod.'github.com/go-text/typesetting']
+    version = 'v0.3.0'
+    hash = 'sha256-dCjYWtlBDO2QHPBbGo5arbwkxMkYUYJddRU+6VARaeI='
+
   [mod.'github.com/hajimehoshi/ebiten/v2']
     version = 'v2.9.9'
     hash = 'sha256-3cc5DzNE9hq561rVeS25FcV7cZJ/d33nkzwX5Cpc71U='
@@ -21,6 +25,14 @@ schema = 3
     version = 'v1.1.1'
     hash = 'sha256-LjbHWx2dzeVUOf3+VYpMZk+mXkxjwRR+v0oH3ZfPEDY='
 
+  [mod.'github.com/rivo/uniseg']
+    version = 'v0.4.7'
+    hash = 'sha256-rDcdNYH6ZD8KouyyiZCUEy8JrjOQoAkxHBhugrfHjFo='
+
+  [mod.'golang.org/x/image']
+    version = 'v0.31.0'
+    hash = 'sha256-ZFTlu9+4QToPPLA8C5UcG2eq/lQylq81RoG/WtYo9rg='
+
   [mod.'golang.org/x/sync']
     version = 'v0.17.0'
     hash = 'sha256-M85lz4hK3/fzmcUViAp/CowHSxnr3BHSO7pjHp1O6i0='
@@ -28,3 +40,7 @@ schema = 3
   [mod.'golang.org/x/sys']
     version = 'v0.36.0'
     hash = 'sha256-9h4SHGnlJzmTENUp6226hC8fQ73QrQC3D85NNMxLuXg='
+
+  [mod.'golang.org/x/text']
+    version = 'v0.29.0'
+    hash = 'sha256-2cWBtJje+Yc+AnSgCANqBlIwnOMZEGkpQ2cFI45VfLI='
