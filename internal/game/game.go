@@ -4,7 +4,6 @@ import (
 	// Standard libraries
 	"bytes"
 	"image/color"
-	"log"
 	"math/rand/v2"
 
 	// Externals
@@ -40,10 +39,22 @@ type Game struct {
 func NewGame() (*Game, error) {
 	g := &Game{}
 
+	if err := g.newGameGopher(); err != nil {
+		return nil, err
+	}
+
+	if err := g.newGameFont(); err != nil {
+		return nil, err
+	}
+
+	return g, nil
+}
+
+func (g *Game) newGameGopher() error {
 	// Load gopher image
 	gopher_img, _, err := ebitenutil.NewImageFromFileSystem(assets.Assets, "images/gopher.png")
 	if err != nil {
-		return nil, err
+		return err
 	}
 	g.gopher.image = gopher_img
 
@@ -51,14 +62,20 @@ func NewGame() (*Game, error) {
 	g.gopher.scaleX = 1.0
 	g.gopher.scaleY = 1.0
 
+	return nil
+}
+
+func (g *Game) newGameFont() error {
 	// Set the standard Go font TTF data
 	s, err := text.NewGoTextFaceSource(bytes.NewReader(goregular.TTF))
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+
+	// Set g.fontFace
 	g.fontFace = s
 
-	return g, nil
+	return nil
 }
 
 func gopherColor() color.RGBA {
