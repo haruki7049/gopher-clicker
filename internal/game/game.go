@@ -9,6 +9,8 @@ import (
 
 	// Externals
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
+	"github.com/hajimehoshi/ebiten/v2/audio/wav"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -34,6 +36,8 @@ type Game struct {
 	states   states
 	gopher   gopher
 	fontFace *text.GoTextFaceSource
+	audioCtx *audio.Context
+	sePlayer *audio.Player
 }
 
 type states struct {
@@ -53,6 +57,10 @@ func NewGame() (*Game, error) {
 		return nil, err
 	}
 
+	if err := g.newGameAudio(); err != nil {
+		return nil, err
+	}
+
 	g.newStates()
 
 	return g, nil
@@ -60,6 +68,33 @@ func NewGame() (*Game, error) {
 
 func (g *Game) newStates() {
 	g.states.inTitle = true
+}
+
+func (g *Game) newGameAudio() error {
+	// Initialize audio context with 44100 sample rate
+	g.audioCtx = audio.NewContext(44100)
+
+	// Open the WAV file from embedded assets
+	file, err := assets.Assets.Open("se/success.wav")
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// Decode the WAV file
+	decoded, err := wav.DecodeWithSampleRate(44100, file)
+	if err != nil {
+		return err
+	}
+
+	// Create a new audio player
+	player, err := g.audioCtx.NewPlayer(decoded)
+	if err != nil {
+		return err
+	}
+
+	g.sePlayer = player
+	return nil
 }
 
 func (g *Game) newGameGopher() error {
@@ -101,6 +136,11 @@ func (g *Game) Update() error {
 		g.randomizeGopherPosition()
 		g.states.inTitle = false
 		g.states.score += 1
+
+		if g.sePlayer != nil {
+			g.sePlayer.Rewind()
+			g.sePlayer.Play()
+		}
 	}
 
 	return nil
