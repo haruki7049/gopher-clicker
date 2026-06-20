@@ -189,6 +189,7 @@ func (g *Game) drawScore(screen *ebiten.Image) {
 	_, h := text.Measure(GAME_TITLE, face, face.Size)
 
 	op := &text.DrawOptions{}
+	op.ColorScale.ScaleWithColor(color.Black)
 	op.LayoutOptions = text.LayoutOptions{LineSpacing: h, PrimaryAlign: text.AlignCenter, SecondaryAlign: text.AlignCenter}
 	op.GeoM.Translate(GAME_WIDTH/2, GAME_HEIGHT/3*2)
 
@@ -206,6 +207,7 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	_, h := text.Measure(GAME_TITLE, face, face.Size)
 
 	op := &text.DrawOptions{}
+	op.ColorScale.ScaleWithColor(color.Black)
 	op.LayoutOptions = text.LayoutOptions{LineSpacing: h, PrimaryAlign: text.AlignCenter, SecondaryAlign: text.AlignCenter}
 	op.GeoM.Translate(GAME_WIDTH/2, GAME_HEIGHT/3*2)
 
