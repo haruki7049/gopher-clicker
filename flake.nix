@@ -48,13 +48,23 @@
             pkgs.libxi
             pkgs.libxxf86vm
             pkgs.libglvnd
+            pkgs.alsa-lib
+          ];
+          nativeBuildInputs = [
+            pkgs.go # Golang
+            pkgs.pkg-config # pkg-config
+            pkgs.nil # Nix LSP
+            pkgs.gopls # Golang LSP
+            pkgs.gomod2nix # gomod2nix for creating Hashes (./gomod2nix.toml)
+
+            pkgs.powershell # For scripting (Powershell is needed to align my Linux environment with Windows)
           ];
 
           gopher-clicker = pkgs.buildGoApplication {
             name = "gopher-clicker";
             src = lib.cleanSource ./.;
             modules = ./gomod2nix.toml;
-            inherit buildInputs;
+            inherit buildInputs nativeBuildInputs;
           };
         in
         {
@@ -92,18 +102,9 @@
           };
 
           devShells.default = pkgs.mkShell {
-            inherit buildInputs;
-            nativeBuildInputs = [
-              pkgs.go # Golang
-              pkgs.nil # Nix LSP
-              pkgs.gopls # Golang LSP
-              pkgs.gomod2nix # gomod2nix for creating Hashes (./gomod2nix.toml)
-
-              pkgs.powershell # For scripting (Powershell is needed to align my Linux environment with Windows)
-            ];
+            inherit buildInputs nativeBuildInputs;
 
             env.LD_LIBRARY_PATH = lib.makeLibraryPath buildInputs;
-
             inputsFrom = [ config.treefmt.build.devShell ];
           };
         };
