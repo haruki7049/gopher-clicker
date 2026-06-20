@@ -65,19 +65,27 @@ func gopherColor() color.RGBA {
 }
 
 func (g *Game) Update() error {
-	// Increment ticks and reset at 120 to prevent overflow
-	g.ticks++
-	if g.ticks >= 120 {
-		g.ticks = 0
-	}
+	g.updateTicks()
 
 	if g.isGopherClicked() {
+		// g.randomizeGopherPosition()
 		g.gopher.x += 100.0
 		g.gopher.y += 100.0
 	}
 
 	return nil
 }
+
+func (g *Game) updateTicks() {
+	// Increment ticks and reset at 120 to prevent overflow
+	g.ticks++
+	if g.ticks >= 120 {
+		g.ticks = 0
+	}
+}
+
+// func (g *Game) randomizeGopherPosision() {
+// }
 
 func (g *Game) isGopherClicked() bool {
 	// Check if the left mouse button is just pressed
