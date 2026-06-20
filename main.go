@@ -6,7 +6,7 @@ import (
 
 	// Externals
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/haruki7049/gopher-clicker/internals/game"
+	"github.com/haruki7049/gopher-clicker/internal/game"
 )
 
 func main() {
