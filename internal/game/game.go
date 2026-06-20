@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"image/color"
 	"math/rand/v2"
+	"strconv"
 
 	// Externals
 	"github.com/hajimehoshi/ebiten/v2"
@@ -38,6 +39,7 @@ type Game struct {
 type states struct {
 	inTitle bool
 	ticks   int
+	score   int
 }
 
 func NewGame() (*Game, error) {
@@ -58,7 +60,6 @@ func NewGame() (*Game, error) {
 
 func (g *Game) newStates() {
 	g.states.inTitle = true
-	g.states.ticks = 0
 }
 
 func (g *Game) newGameGopher() error {
@@ -98,6 +99,8 @@ func (g *Game) Update() error {
 
 	if g.isGopherClicked() {
 		g.randomizeGopherPosition()
+		g.states.inTitle = false
+		g.states.score += 1
 	}
 
 	return nil
@@ -161,7 +164,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(gopherColor())
 
 	g.drawGopher(screen)
-	g.drawTitle(screen)
+
+	if g.states.inTitle {
+		g.drawTitle(screen)
+	} else {
+		g.drawScore(screen)
+	}
 }
 
 // Draw Gopher
@@ -172,12 +180,24 @@ func (g *Game) drawGopher(screen *ebiten.Image) {
 	screen.DrawImage(g.gopher.image, op)
 }
 
-// Draw title
-func (g *Game) drawTitle(screen *ebiten.Image) {
-	if !g.states.inTitle {
-		return
+func (g *Game) drawScore(screen *ebiten.Image) {
+	face := &text.GoTextFace{
+		Source: g.fontFace,
+		Size:   24,
 	}
 
+	_, h := text.Measure(GAME_TITLE, face, face.Size)
+
+	op := &text.DrawOptions{}
+	op.LayoutOptions = text.LayoutOptions{LineSpacing: h, PrimaryAlign: text.AlignCenter, SecondaryAlign: text.AlignCenter}
+	op.GeoM.Translate(GAME_WIDTH/2, GAME_HEIGHT/3*2)
+
+	// Draw
+	text.Draw(screen, strconv.Itoa(g.states.score), face, op)
+}
+
+// Draw title
+func (g *Game) drawTitle(screen *ebiten.Image) {
 	face := &text.GoTextFace{
 		Source: g.fontFace,
 		Size:   24,
