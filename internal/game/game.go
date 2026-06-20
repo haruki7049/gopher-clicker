@@ -22,7 +22,7 @@ const GAME_TITLE = "Gopher Clicker"
 const GAME_HEIGHT = 480
 const GAME_WIDTH = 640
 
-type Gopher struct {
+type gopher struct {
 	image  *ebiten.Image
 	x      float64
 	y      float64
@@ -32,7 +32,7 @@ type Gopher struct {
 
 type Game struct {
 	states   states
-	gopher   Gopher
+	gopher   gopher
 	fontFace *text.GoTextFaceSource
 }
 
