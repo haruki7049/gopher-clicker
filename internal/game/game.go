@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"image/color"
 	"log"
+	"math/rand/v2"
 
 	// Externals
 	"github.com/hajimehoshi/ebiten/v2"
@@ -68,9 +69,7 @@ func (g *Game) Update() error {
 	g.updateTicks()
 
 	if g.isGopherClicked() {
-		// g.randomizeGopherPosition()
-		g.gopher.x += 100.0
-		g.gopher.y += 100.0
+		g.randomizeGopherPosition()
 	}
 
 	return nil
@@ -84,8 +83,18 @@ func (g *Game) updateTicks() {
 	}
 }
 
-// func (g *Game) randomizeGopherPosision() {
-// }
+func (g *Game) randomizeGopherPosition() {
+	bounds := g.gopher.image.Bounds()
+	w := float64(bounds.Dx()) * g.gopher.scaleX
+	h := float64(bounds.Dy()) * g.gopher.scaleY
+
+	maxX := float64(GAME_WIDTH) - w
+	maxY := float64(GAME_HEIGHT) - h
+
+	// Generate random coordinates within the screen bounds
+	g.gopher.x = rand.Float64() * maxX
+	g.gopher.y = rand.Float64() * maxY
+}
 
 func (g *Game) isGopherClicked() bool {
 	// Check if the left mouse button is just pressed
