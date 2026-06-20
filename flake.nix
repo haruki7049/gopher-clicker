@@ -54,6 +54,7 @@
             name = "gopher-clicker";
             src = lib.cleanSource ./.;
             modules = ./gomod2nix.toml;
+            inherit buildInputs;
           };
         in
         {
