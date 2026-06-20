@@ -30,10 +30,14 @@ type Gopher struct {
 }
 
 type Game struct {
-	inTitle  bool
-	ticks    int
+	states   states
 	gopher   Gopher
 	fontFace *text.GoTextFaceSource
+}
+
+type states struct {
+	inTitle bool
+	ticks   int
 }
 
 func NewGame() (*Game, error) {
@@ -47,7 +51,14 @@ func NewGame() (*Game, error) {
 		return nil, err
 	}
 
+	g.newStates()
+
 	return g, nil
+}
+
+func (g *Game) newStates() {
+	g.states.inTitle = true
+	g.states.ticks = 0
 }
 
 func (g *Game) newGameGopher() error {
@@ -94,9 +105,9 @@ func (g *Game) Update() error {
 
 func (g *Game) updateTicks() {
 	// Increment ticks and reset at 120 to prevent overflow
-	g.ticks++
-	if g.ticks >= 120 {
-		g.ticks = 0
+	g.states.ticks++
+	if g.states.ticks >= 120 {
+		g.states.ticks = 0
 	}
 }
 
@@ -149,30 +160,37 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// Fill the screen with Cyan Blue (Gopher's color!!)
 	screen.Fill(gopherColor())
 
-	// Draw Gopher image
-	{
-		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Scale(g.gopher.scaleX, g.gopher.scaleY)
-		op.GeoM.Translate(g.gopher.x, g.gopher.y)
-		screen.DrawImage(g.gopher.image, op)
+	g.drawGopher(screen)
+	g.drawTitle(screen)
+}
+
+// Draw Gopher
+func (g *Game) drawGopher(screen *ebiten.Image) {
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(g.gopher.scaleX, g.gopher.scaleY)
+	op.GeoM.Translate(g.gopher.x, g.gopher.y)
+	screen.DrawImage(g.gopher.image, op)
+}
+
+// Draw title
+func (g *Game) drawTitle(screen *ebiten.Image) {
+	if !g.states.inTitle {
+		return
 	}
 
-	// Draw title
-	{
-		face := &text.GoTextFace{
-			Source: g.fontFace,
-			Size:   24,
-		}
-
-		_, h := text.Measure(GAME_TITLE, face, face.Size)
-
-		op := &text.DrawOptions{}
-		op.LayoutOptions = text.LayoutOptions{LineSpacing: h, PrimaryAlign: text.AlignCenter, SecondaryAlign: text.AlignCenter}
-		op.GeoM.Translate(GAME_WIDTH/2, GAME_HEIGHT/3*2)
-
-		// Draw
-		text.Draw(screen, GAME_TITLE+"\nClick and Start!!", face, op)
+	face := &text.GoTextFace{
+		Source: g.fontFace,
+		Size:   24,
 	}
+
+	_, h := text.Measure(GAME_TITLE, face, face.Size)
+
+	op := &text.DrawOptions{}
+	op.LayoutOptions = text.LayoutOptions{LineSpacing: h, PrimaryAlign: text.AlignCenter, SecondaryAlign: text.AlignCenter}
+	op.GeoM.Translate(GAME_WIDTH/2, GAME_HEIGHT/3*2)
+
+	// Draw
+	text.Draw(screen, GAME_TITLE+"\nClick and Start!!", face, op)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
