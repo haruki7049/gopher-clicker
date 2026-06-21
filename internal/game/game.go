@@ -32,6 +32,11 @@ type gopher struct {
 	scaleY float64
 }
 
+type inputPosition struct {
+	x int
+	y int
+}
+
 type Game struct {
 	states   states
 	gopher   gopher
@@ -167,15 +172,26 @@ func (g *Game) randomizeGopherPosition() {
 	g.gopher.y = rand.Float64() * maxY
 }
 
-func (g *Game) isGopherClicked() bool {
-	// Check if the left mouse button is just pressed
-	if !inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		return false
+func (g *Game) justPressedPositions() []inputPosition {
+	var positions []inputPosition
+
+	// Mouse button
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		cx, cy := ebiten.CursorPosition()
+		positions = append(positions, inputPosition{x: cx, y: cy})
 	}
 
-	cx, cy := ebiten.CursorPosition()
+	// Touchpad (for mobile devices)
+	for _, id := range inpututil.AppendJustPressedTouchIDs(nil) {
+		tx, ty := ebiten.TouchPosition(id)
+		positions = append(positions, inputPosition{x: tx, y: ty})
+	}
 
-	// Adjust cursor position to relative coordinates inside the image
+	return positions
+}
+
+func (g *Game) isPositionOnGopher(cx, cy int) bool {
+	// Adjust position to relative coordinates inside the image
 	relX := float64(cx) - g.gopher.x
 	relY := float64(cy) - g.gopher.y
 
@@ -183,7 +199,7 @@ func (g *Game) isGopherClicked() bool {
 	w := float64(bounds.Dx()) * g.gopher.scaleX
 	h := float64(bounds.Dy()) * g.gopher.scaleY
 
-	// Check if the cursor is within the bounding box
+	// Check if the position is within the bounding box
 	if relX < 0 || relY < 0 || relX >= w || relY >= h {
 		return false
 	}
@@ -192,11 +208,21 @@ func (g *Game) isGopherClicked() bool {
 	localX := int(relX / g.gopher.scaleX)
 	localY := int(relY / g.gopher.scaleY)
 
-	// Get the color of the pixel
+	// Get RGBA value of the pixel
 	_, _, _, a := g.gopher.image.At(localX, localY).RGBA()
 
 	// Check if the alpha value is not zero (not transparent)
 	return a > 0
+}
+
+func (g *Game) isGopherClicked() bool {
+	for _, pos := range g.justPressedPositions() {
+		if g.isPositionOnGopher(pos.x, pos.y) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {

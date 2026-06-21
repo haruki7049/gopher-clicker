@@ -3,9 +3,10 @@
   <head>
     <title>Gopher Clicker Game</title>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   </head>
 
   <body>
-    <iframe style="border: 1px solid black" srcdoc="<!DOCTYPE html><script src=&quot;wasm_exec.js&quot;></script><script> const go = new Go(); WebAssembly.instantiateStreaming(fetch(&quot;main.wasm&quot;), go.importObject).then(result => { go.run(result.instance); }); </script>" width="640" height="480"></iframe>
+    <iframe style="border: 1px solid black; touch-action: none" srcdoc="<!DOCTYPE html><script src=&quot;wasm_exec.js&quot;></script><script> const go = new Go(); WebAssembly.instantiateStreaming(fetch(&quot;main.wasm&quot;), go.importObject).then(result => { go.run(result.instance); }); </script>" width="640" height="480"></iframe>
   </body>
 </html>
