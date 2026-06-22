@@ -14,6 +14,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 	"golang.org/x/image/font/gofont/goregular"
 
 	// Internals
@@ -23,6 +24,14 @@ import (
 const GAME_TITLE = "Gopher Clicker"
 const GAME_HEIGHT = 480
 const GAME_WIDTH = 640
+
+// CLICK_TIMEOUT_SECONDS is the time limit (in seconds) the player can go
+// without clicking the gopher before the score is reset.
+const CLICK_TIMEOUT_SECONDS = 1.5
+
+const gaugeWidth float32 = 200
+const gaugeHeight float32 = 12
+const gaugeY float32 = 16
 
 type gopher struct {
 	image  *ebiten.Image
@@ -46,9 +55,10 @@ type Game struct {
 }
 
 type states struct {
-	inTitle bool
-	ticks   int
-	score   int
+	inTitle         bool
+	ticks           int
+	score           int
+	ticksSinceClick int
 }
 
 func NewGame() (*Game, error) {
@@ -141,12 +151,15 @@ func (g *Game) Update() error {
 		g.randomizeGopherPosition()
 		g.states.inTitle = false
 		g.states.score += 1
+		g.states.ticksSinceClick = 0
 
 		if g.sePlayer != nil {
 			g.sePlayer.Rewind()
 			g.sePlayer.Play()
 		}
 	}
+
+	g.updateClickTimeout()
 
 	return nil
 }
@@ -157,6 +170,23 @@ func (g *Game) updateTicks() {
 	if g.states.ticks >= 120 {
 		g.states.ticks = 0
 	}
+}
+
+func (g *Game) updateClickTimeout() {
+	if g.states.inTitle {
+		return
+	}
+
+	g.states.ticksSinceClick += 1
+
+	timeoutTicks := g.clickTimeoutTicks()
+	if g.states.ticksSinceClick >= timeoutTicks {
+		g.states.score = 0
+	}
+}
+
+func (g *Game) clickTimeoutTicks() int {
+	return int(CLICK_TIMEOUT_SECONDS * float64(ebiten.TPS()))
 }
 
 func (g *Game) randomizeGopherPosition() {
@@ -230,12 +260,32 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(gopherColor())
 
 	g.drawGopher(screen)
+	g.drawClickGauge(screen)
 
 	if g.states.inTitle {
 		g.drawTitle(screen)
 	} else {
 		g.drawScore(screen)
 	}
+}
+
+func (g *Game) drawClickGauge(screen *ebiten.Image) {
+	if g.states.inTitle {
+		return
+	}
+
+	timeoutTicks := g.clickTimeoutTicks()
+	remainingTicks := timeoutTicks - g.states.ticksSinceClick
+	if remainingTicks <= 0 {
+		return
+	}
+
+	ratio := float32(remainingTicks) / float32(timeoutTicks)
+	gaugeX := (float32(GAME_WIDTH) - gaugeWidth) / 2
+
+	vector.FillRect(screen, gaugeX, gaugeY, gaugeWidth, gaugeHeight, color.RGBA{A: 0x80}, false)
+
+	vector.FillRect(screen, gaugeX, gaugeY, gaugeWidth*ratio, gaugeHeight, color.White, false)
 }
 
 // Draw Gopher
