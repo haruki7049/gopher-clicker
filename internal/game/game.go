@@ -46,12 +46,87 @@ type inputPosition struct {
 	y int
 }
 
+type successSe struct {
+	player *audio.Player
+}
+
+func (se *successSe) Play() {
+	se.player.Rewind()
+	se.player.Play()
+}
+
+type missSe struct {
+	player *audio.Player
+}
+
+func (se *missSe) Play() {
+	se.player.Rewind()
+	se.player.Play()
+}
+
+type Se interface {
+	Play()
+}
+
+func newSuccessSe(g *Game) (*successSe, error) {
+	var successSe successSe
+
+	// Open the WAV file from embedded assets
+	file, err := assets.Assets.Open("se/success.wav")
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	// Decode the WAV file
+	decoded, err := wav.DecodeWithSampleRate(44100, file)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create a new audio player
+	player, err := g.audioCtx.NewPlayer(decoded)
+	if err != nil {
+		return nil, err
+	}
+
+	successSe.player = player
+	return &successSe, nil
+}
+
+func newMissSe(g *Game) (*missSe, error) {
+	var missSe missSe
+
+	// Open the WAV file from embedded assets
+	file, err := assets.Assets.Open("se/miss.wav")
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	// Decode the WAV file
+	decoded, err := wav.DecodeWithSampleRate(44100, file)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create a new audio player
+	player, err := g.audioCtx.NewPlayer(decoded)
+	if err != nil {
+		return nil, err
+	}
+
+	missSe.player = player
+	return &missSe, nil
+}
+
 type Game struct {
-	states   states
-	gopher   gopher
-	fontFace *text.GoTextFaceSource
-	audioCtx *audio.Context
-	sePlayer *audio.Player
+	states    states
+	gopher    gopher
+	fontFace  *text.GoTextFaceSource
+	audioCtx  *audio.Context
+	successSe successSe
+	missSe    missSe
 }
 
 type states struct {
@@ -64,6 +139,8 @@ type states struct {
 func NewGame() (*Game, error) {
 	g := &Game{}
 
+	g.newAudioCtx()
+
 	if err := g.newGameGopher(); err != nil {
 		return nil, err
 	}
@@ -72,44 +149,33 @@ func NewGame() (*Game, error) {
 		return nil, err
 	}
 
-	if err := g.newGameAudio(); err != nil {
+	// Success SE
+	successSe, err := newSuccessSe(g)
+	if err != nil {
 		return nil, err
 	}
+	g.successSe = *successSe
+
+	// Miss SE
+	missSe, err := newMissSe(g)
+	if err != nil {
+		return nil, err
+	}
+	g.missSe = *missSe
 
 	g.newStates()
 
 	return g, nil
 }
 
-func (g *Game) newStates() {
-	g.states.inTitle = true
-}
-
-func (g *Game) newGameAudio() error {
+func (g *Game) newAudioCtx() {
 	// Initialize audio context with 44100 sample rate
 	g.audioCtx = audio.NewContext(44100)
 
-	// Open the WAV file from embedded assets
-	file, err := assets.Assets.Open("se/success.wav")
-	if err != nil {
-		return err
-	}
-	defer file.Close()
+}
 
-	// Decode the WAV file
-	decoded, err := wav.DecodeWithSampleRate(44100, file)
-	if err != nil {
-		return err
-	}
-
-	// Create a new audio player
-	player, err := g.audioCtx.NewPlayer(decoded)
-	if err != nil {
-		return err
-	}
-
-	g.sePlayer = player
-	return nil
+func (g *Game) newStates() {
+	g.states.inTitle = true
 }
 
 func (g *Game) newGameGopher() error {
@@ -153,10 +219,8 @@ func (g *Game) Update() error {
 		g.states.score += 1
 		g.states.ticksSinceClick = 0
 
-		if g.sePlayer != nil {
-			g.sePlayer.Rewind()
-			g.sePlayer.Play()
-		}
+		// Success SE play
+		g.successSe.Play()
 	}
 
 	g.updateClickTimeout()
@@ -181,6 +245,11 @@ func (g *Game) updateClickTimeout() {
 
 	timeoutTicks := g.clickTimeoutTicks()
 	if g.states.ticksSinceClick >= timeoutTicks {
+		if g.states.score != 0 {
+			// Miss SE play
+			g.missSe.Play()
+		}
+
 		g.states.score = 0
 	}
 }
